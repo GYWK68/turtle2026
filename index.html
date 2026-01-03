@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 灵龟献瑞 - 极致灵敏版</title>
+    <title>2026 灵龟献瑞 - 极致交互版</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
     
     <script type="importmap">
@@ -35,7 +35,7 @@
             border: 1px solid rgba(255, 223, 0, 0.3); border-radius: 8px; overflow: hidden;
             transform: scaleX(-1); background: #111; pointer-events: auto; transition: opacity 0.5s;
         }
-        #webcam { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+        #webcam { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; }
 
         #start-mask {
             position: fixed; inset: 0; background: #000; z-index: 1000;
@@ -46,14 +46,14 @@
             padding: 12px 30px; font-size: 1rem; cursor: pointer; letter-spacing: 2px;
         }
         
-        .hint-text { position: fixed; bottom: 40px; left: 0; width: 100%; text-align: center; font-size: 11px; opacity: 0.5; pointer-events: none; }
+        .hint-text { position: fixed; bottom: 40px; left: 0; width: 100%; text-align: center; font-size: 11px; opacity: 0.4; pointer-events: none; }
     </style>
 </head>
 <body>
 
     <div id="start-mask">
         <h2 style="color:white; font-weight: 400; letter-spacing: 3px;">2026 灵龟献瑞</h2>
-        <p style="color:var(--gold); font-size: 12px; margin-bottom: 30px; opacity: 0.7;">高灵敏手势交互体验</p>
+        <p style="color:var(--gold); font-size: 12px; margin-bottom: 30px; opacity: 0.6;">极致灵敏手势交互</p>
         <button class="start-btn" onclick="startExperience()">开启体验</button>
     </div>
 
@@ -70,7 +70,7 @@
         <div id="video-container">
             <video id="webcam" autoplay playsinline></video>
         </div>
-        <div id="bottom-hint" class="hint-text">握拳：聚合 | 移动：极致灵敏操控</div>
+        <div id="bottom-hint" class="hint-text">微动：全向旋转控制 | 握拳：聚合</div>
     </div>
 
     <script type="module">
@@ -100,7 +100,7 @@
 
             ui.style.opacity = isCinema ? "0" : "1";
             videoCont.style.opacity = isCinema ? "0" : "1";
-            hint.style.opacity = isCinema ? "0" : "0.5";
+            hint.style.opacity = isCinema ? "0" : "0.4";
             btn.innerText = isCinema ? "退出全屏" : "全屏模式";
         };
 
@@ -148,15 +148,15 @@
             geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
 
             particles = new THREE.Points(geo, new THREE.PointsMaterial({
-                size: 0.32, map: sprite, vertexColors: true, transparent: true, opacity: 0.75, // 再度降低粒子透明度
+                size: 0.32, map: sprite, vertexColors: true, transparent: true, opacity: 0.65, // 进一步降低基础透明度
                 blending: THREE.AdditiveBlending, depthWrite: false
             }));
             scene.add(particles);
 
             const composer_setup = new EffectComposer(renderer);
             composer_setup.addPass(new RenderPass(scene, camera));
-            // 亮度再降低 20% (1.2 -> 0.96)
-            composer_setup.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.96, 0.4, 0.1));
+            // 亮度再降低 20% (0.96 -> 0.77)
+            composer_setup.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.77, 0.4, 0.1));
             composer = composer_setup;
 
             await setupCamera();
@@ -210,11 +210,11 @@
                     const pts = results.landmarks[0];
                     currentMode = (pts[12].y > pts[9].y) ? 'TREE' : 'SCATTER';
                     
-                    // 灵敏度再提升 30% (左右 1.95, 上下 2.08)
-                    const targetRotY = (pts[8].x - 0.5) * 1.95;
-                    const targetRotX = (pts[8].y - 0.5) * 2.08;
-                    particles.rotation.y += (targetRotY - particles.rotation.y) * 0.12;
-                    particles.rotation.x += (targetRotX - particles.rotation.x) * 0.12;
+                    // 灵敏度再提升 80% (在 1.95/2.08 基础上 * 1.8 左右)
+                    const targetRotY = (pts[8].x - 0.5) * 3.51; 
+                    const targetRotX = (pts[8].y - 0.5) * 3.74;
+                    particles.rotation.y += (targetRotY - particles.rotation.y) * 0.15;
+                    particles.rotation.x += (targetRotX - particles.rotation.x) * 0.15;
                 }
             }
 
@@ -225,9 +225,9 @@
             for(let i=0; i<count; i++) {
                 const idx = i*3;
                 if(currentMode === 'TREE') {
-                    pArr[idx] += (tArr[idx] - pArr[idx]) * 0.12;
-                    pArr[idx+1] += (tArr[idx+1] + Math.sin(time*2+i*0.1)*0.1 - pArr[idx+1]) * 0.12;
-                    pArr[idx+2] += (tArr[idx+2] - pArr[idx+2]) * 0.12;
+                    pArr[idx] += (tArr[idx] - pArr[idx]) * 0.15;
+                    pArr[idx+1] += (tArr[idx+1] + Math.sin(time*2+i*0.1)*0.1 - pArr[idx+1]) * 0.15;
+                    pArr[idx+2] += (tArr[idx+2] - pArr[idx+2]) * 0.15;
                 } else {
                     pArr[idx] += (sArr[idx] - pArr[idx]) * PARAMS.lerpSpeed;
                     pArr[idx+1] += (sArr[idx+1] - pArr[idx+1]) * PARAMS.lerpSpeed;
