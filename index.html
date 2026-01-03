@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 灵龟献瑞 - 全屏交互版</title>
+    <title>2026 灵龟献瑞 - 极致灵敏版</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
     
     <script type="importmap">
@@ -19,13 +19,11 @@
         :root { --emerald: #00ffaa; --gold: #ffdf00; }
         body { margin: 0; overflow: hidden; background: #000; color: var(--gold); font-family: 'Cinzel', serif; }
         
-        /* 交互 UI 层 */
         #ui-layer { position: fixed; inset: 0; pointer-events: none; z-index: 10; padding: env(safe-area-inset-top) 20px 40px 20px; transition: opacity 0.5s; }
         
         .main-title { font-size: 2.2rem; margin: 0; filter: drop-shadow(0 0 10px var(--emerald)); color: #fff; text-align: center; margin-top: 10vh; letter-spacing: 4px;}
         .sub-title { font-size: 0.75rem; letter-spacing: 4px; opacity: 0.8; text-align: center; margin-top: 8px; color: var(--gold); }
 
-        /* 右上角功能按键 */
         .top-right-btns { position: absolute; top: env(safe-area-inset-top); right: 20px; pointer-events: auto; display: flex; gap: 10px; z-index: 100; }
         .glass-btn { 
             background: rgba(255, 255, 255, 0.1); border: 1px solid var(--gold); color: var(--gold); 
@@ -55,7 +53,7 @@
 
     <div id="start-mask">
         <h2 style="color:white; font-weight: 400; letter-spacing: 3px;">2026 灵龟献瑞</h2>
-        <p style="color:var(--gold); font-size: 12px; margin-bottom: 30px; opacity: 0.7;">沉浸式 3D 手势交互</p>
+        <p style="color:var(--gold); font-size: 12px; margin-bottom: 30px; opacity: 0.7;">高灵敏手势交互体验</p>
         <button class="start-btn" onclick="startExperience()">开启体验</button>
     </div>
 
@@ -72,7 +70,7 @@
         <div id="video-container">
             <video id="webcam" autoplay playsinline></video>
         </div>
-        <div id="bottom-hint" class="hint-text">握拳：聚合 | 移动：操控旋转俯仰</div>
+        <div id="bottom-hint" class="hint-text">握拳：聚合 | 移动：极致灵敏操控</div>
     </div>
 
     <script type="module">
@@ -93,7 +91,6 @@
             lerpSpeed: 0.012
         };
 
-        // 全屏模式切换逻辑
         window.toggleCinemaMode = function() {
             isCinema = !isCinema;
             const ui = document.getElementById('text-content');
@@ -101,19 +98,10 @@
             const hint = document.getElementById('bottom-hint');
             const btn = document.getElementById('fs-btn');
 
-            if(isCinema) {
-                ui.style.opacity = "0";
-                videoCont.style.opacity = "0";
-                hint.style.opacity = "0";
-                btn.innerText = "退出全屏";
-                btn.style.background = "rgba(255,223,0,0.2)";
-            } else {
-                ui.style.opacity = "1";
-                videoCont.style.opacity = "1";
-                hint.style.opacity = "0.5";
-                btn.innerText = "全屏模式";
-                btn.style.background = "rgba(255,255,255,0.1)";
-            }
+            ui.style.opacity = isCinema ? "0" : "1";
+            videoCont.style.opacity = isCinema ? "0" : "1";
+            hint.style.opacity = isCinema ? "0" : "0.5";
+            btn.innerText = isCinema ? "退出全屏" : "全屏模式";
         };
 
         window.startExperience = async function() {
@@ -160,15 +148,15 @@
             geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
 
             particles = new THREE.Points(geo, new THREE.PointsMaterial({
-                size: 0.32, map: sprite, vertexColors: true, transparent: true, opacity: 0.85, // 降低基础亮度
+                size: 0.32, map: sprite, vertexColors: true, transparent: true, opacity: 0.75, // 再度降低粒子透明度
                 blending: THREE.AdditiveBlending, depthWrite: false
             }));
             scene.add(particles);
 
             const composer_setup = new EffectComposer(renderer);
             composer_setup.addPass(new RenderPass(scene, camera));
-            // 核心修改 2：亮度降低 20% (强度从 1.5 调至 1.2)
-            composer_setup.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.1));
+            // 亮度再降低 20% (1.2 -> 0.96)
+            composer_setup.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.96, 0.4, 0.1));
             composer = composer_setup;
 
             await setupCamera();
@@ -181,10 +169,10 @@
             let x, y, z;
             if (p < 0.65) { 
                 const u = Math.random() * Math.PI * 2, v = Math.random() * Math.PI * 0.5;
-                const r = 10, bump = Math.sin(u * 6) * Math.sin(v * 6) * 0.6;
-                x = (r + bump) * Math.cos(u) * Math.sin(v);
-                y = (r * 0.55 + bump) * Math.cos(v);
-                z = (r * 1.1 + bump) * Math.sin(u) * Math.sin(v);
+                const r = 10;
+                x = r * Math.cos(u) * Math.sin(v);
+                y = r * 0.55 * Math.cos(v);
+                z = r * 1.1 * Math.sin(u) * Math.sin(v);
             } else if (p < 0.8) { 
                 const u = Math.random() * Math.PI * 2, v = Math.random() * Math.PI;
                 const r = 2.4;
@@ -222,9 +210,9 @@
                     const pts = results.landmarks[0];
                     currentMode = (pts[12].y > pts[9].y) ? 'TREE' : 'SCATTER';
                     
-                    // 核心修改 1：上下摇摆灵敏度提高 60% (1.0 -> 1.6)
-                    const targetRotY = (pts[8].x - 0.5) * 1.5;
-                    const targetRotX = (pts[8].y - 0.5) * 1.6;
+                    // 灵敏度再提升 30% (左右 1.95, 上下 2.08)
+                    const targetRotY = (pts[8].x - 0.5) * 1.95;
+                    const targetRotX = (pts[8].y - 0.5) * 2.08;
                     particles.rotation.y += (targetRotY - particles.rotation.y) * 0.12;
                     particles.rotation.x += (targetRotX - particles.rotation.x) * 0.12;
                 }
